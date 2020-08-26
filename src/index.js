@@ -1,17 +1,32 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import App from './components/App';
+import { createStore, combineReducers } from 'redux';
+import { Provider } from 'react-redux';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const articlesReducer = (state = [], action ) => {
+  switch(action.type) {
+    case 'ADD_ARTICLE':
+      console.log("Add_article");
+      console.log("Action: ", action);
+      action.payload.id = Date.now();
+      const newState = [...state, action.payload];
+      return newState;
+    case 'EDIT_ARTICLE':
+      console.log('Edit_article');
+      const articleId = action.payload.id;
+      return state.map(article => {
+        if(article.id !== articleId){
+          return article
+        }
+        return action.payload;
+      })
+    default: 
+      return state;
+  }
+};
+const store = createStore(combineReducers({ articles: articlesReducer }), window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+window.store = store;
+
+ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById("root"));
